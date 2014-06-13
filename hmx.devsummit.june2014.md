@@ -1,4 +1,4 @@
-HealthMedX Development Summit June 2014
+HealthMEDX Development Summit June 2014
 =======================================
 
 TODO's
