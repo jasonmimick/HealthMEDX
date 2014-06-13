@@ -1,8 +1,9 @@
 HealthMEDX Development Summit June 2014
 =======================================
 
-TODO's
-------
+
+TODO's / Topics / Open Items
+----------------------------
 
 * Need to build benchmark/load testing tools to help dev, test, and ops
 * Big messages ~ >1K with the CIM, how does that effect settings? (need baseline)
@@ -31,4 +32,7 @@ TODO's
 	* Just like HMXBASECODE - do they have HMXNAMESOLUTIONS, or maybe HMXPHARM do we package map?
 	* How does this fit in dev builds?
 * XSD's DEV builds should load them into the DB, then the automation will write them back out on the file system to the _XSD directory where then need to be for the runtime.
-
+* Unit Testing - a way to link why things failed into the csp portal
+* How to call a classmethod from .NET? Actually want to kick off %UnitTests from Visual Studio test runner
+* Add Unit Test's for BPL's
+* Way to test a routing rule
