@@ -36,3 +36,8 @@ TODO's / Topics / Open Items
 * How to call a classmethod from .NET? Actually want to kick off %UnitTests from Visual Studio test runner
 * Add Unit Test's for BPL's
 * Way to test a routing rule
+
+
+Friday afternoon - Support Meeting
+----------------------------------
+* Daily report showing for each customer what version, etc.

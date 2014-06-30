@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25" zv="Cache for UNIX (Apple Mac OS X for x86-64) 2014.1 (Build 608U)" ts="2014-06-30 08:55:50">
+<Project name="BareBonesHTTPService" LastModified="2014-06-30 08:47:05.562192">
+  <Items>
+    <ProjectItem name="Sample.BareBonesHTTPProduction" type="CLS"></ProjectItem>
+    <ProjectItem name="Sample.BareBonesHTTPService" type="CLS"></ProjectItem>
+  </Items>
+</Project>
+
+
+<Class name="Sample.BareBonesHTTPProduction">
+<Super>Ens.Production</Super>
+<TimeChanged>63368,31480.072532</TimeChanged>
+<TimeCreated>63368,28376.942891</TimeCreated>
+
+<XData name="ProductionDefinition">
+<Data><![CDATA[
+<Production Name="Sample.BareBonesHTTPProduction" TestingEnabled="true" LogGeneralTraceEvents="true">
+  <Description>This sample demonstrates basic inbound HTTP service funcationality.</Description>
+  <ActorPoolSize>2</ActorPoolSize>
+  <Item Name="Sample.BareBonesHTTPService" Category="" ClassName="Sample.BareBonesHTTPService" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="true" Schedule="">
+    <Setting Target="Adapter" Name="Port">9980</Setting>
+    <Setting Target="Host" Name="ArchiveIO">1</Setting>
+  </Item>
+</Production>
+]]></Data>
+</XData>
+</Class>
+
+
+<Class name="Sample.BareBonesHTTPService">
+<Description><![CDATA[
+This sample class implements a very basic HTTP listener
+as an Ensemble business service.
+Out-of the box the sample will return back infomation
+about the request it gets - this demonstrates how to 
+pull data out of the incoming request.<br/>
+
+To implement basic 'REST' functionality you just need to 
+add logic to do certain things based upon the HTTP verb 
+(GET, POST, etc) and the incoming url path and, possibly,
+any raw data in the request body.<br/>
+
+HTTP Headers and incoming request parameters are found in the 
+pInput.Attributes property, which is a key/value array.<br/>
+
+Do send back headers you put key/values in the output stream Attributes
+property,
+to write data back, just write it to the output stream.<br/>
+
+You can test this by just opening a browser to:
+<pre>
+http://localhost:9980/somePath?foo=bar&hello=world&cost=1000
+</pre>
+You can test POST functionality with a utility like curl. 
+<pre>
+$curl -v -X POST -d "This is post body data, dude" http://localhost:9980/somePath
+</pre>
+
+(Note the examples to test assume you configure this service to listen on
+port 9980, which is the default.)]]></Description>
+<Super>Ens.BusinessService</Super>
+<TimeChanged>63368,31562.560291</TimeChanged>
+<TimeCreated>63368,28335.896951</TimeCreated>
+
+<Parameter name="ADAPTER">
+<Default>EnsLib.HTTP.InboundAdapter</Default>
+</Parameter>
+
+<Method name="OnProcessInput">
+<FormalSpec>pInput:%Stream.Object,*pOutput:%Stream.Object</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	kill ^barebones
+	// Dump all the input Attribtues into a global
+	// Once you issue a request, then you can go into a terminal session
+	// and look at this global
+	// ENSDEMO>zw ^barebones
+	// And see all the data
+	merge ^barebones("pInput.Attributes")=pInput.Attributes
+	set pOutput = ##class(%Library.GlobalCharacterStream).%New()
+	set httpVerb=pInput.Attributes("HttpRequest")
+	do pOutput.WriteLine("Got HTTP '"_httpVerb_"' request")
+	set path=pInput.Attributes("HttpRequest",httpVerb)
+	do pOutput.WriteLine("Request path='"_path_"'")
+	
+	// Query string parameters come over in the Attributes("Params") node
+	set paramName=$order(pInput.Attributes("Params",""))
+	while( paramName'="" ) {
+		set paramCount=pInput.Attributes("Params",paramName)
+		do pOutput.Write("Found parameter '"_paramName_"' with "_paramCount_" values =")
+		for i=1:1:paramCount {
+			set paramValue=pInput.Attributes("Params",paramName,i)
+			do pOutput.Write("'"_paramValue_"'")
+			do:(i<paramCount) pOutput.Write(", ")
+		}
+		do pOutput.WriteLine()
+		set paramName=$order(pInput.Attributes("Params",paramName))
+	}
+	// On a POST you can access the request body like this
+	if ( httpVerb="POST" ) {
+		set contentLength=pInput.Attributes("content-length")
+		do pOutput.WriteLine("Content-Type="_pInput.Attributes("content-type")_" length="_contentLength_"<br/>")
+		do pInput.Rewind()
+		do pOutput.WriteLine("-------------------- post content --------------------")
+		while ( 'pInput.AtEnd ) {
+			do pOutput.Write( pInput.Read() )
+		}
+		do pOutput.Write("-------------------- end  content --------------------")
+		do pOutput.WriteLine()
+	}
+	// Set custom response headers into the output stream Attributes key-value array
+	set pOutput.Attributes("X-Ensemble-BareBones")="This is some custom header!"
+	do pOutput.Write("Hello!")
+	Quit $$$OK
+]]></Implementation>
+</Method>
+</Class>
+</Export>
