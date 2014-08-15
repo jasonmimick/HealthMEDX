@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25" zv="Cache for UNIX (Apple Mac OS X for x86-64) 2014.1 (Build 608U)" ts="2014-08-15 15:47:01">
+<Class name="HMXDEMO.RestOperation">
+<Super>Ens.BusinessOperation</Super>
+<TimeChanged>63414,55718.8656</TimeChanged>
+<TimeCreated>63414,50456.663254</TimeCreated>
+
+<Parameter name="ADAPTER">
+<Default>EnsLib.HTTP.OutboundAdapter</Default>
+</Parameter>
+
+<Property name="Adapter">
+<Type>EnsLib.HTTP.OutboundAdapter</Type>
+</Property>
+
+<Parameter name="INVOCATION">
+<Default>Queue</Default>
+</Parameter>
+
+<Parameter name="SETTINGS">
+<Type>%String</Type>
+<Default>Credentials:Basic:credentialsSelector</Default>
+</Parameter>
+
+<Method name="Test">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set op = ..%New("Foo")	// Need to pass dummy "configName"
+	// These are all "SETTINGS" which you can configure from the Ensemble portal
+	// for testing, we're just setting them programatically
+	set op.Adapter.HTTPServer="localhost",op.Adapter.HTTPPort=9292,op.Adapter.URL="/foo"
+	set op.Adapter.Credentials="FOO"
+	// Generate some fake data to post - for HMX this would just be the XML document
+	set s=##class(%Stream.GlobalCharacter).%New()
+	for lines=1:1:5 {
+		do s.Write("Line #"_lines_":")
+		for i=1:1:100 {
+			do s.Write( $random(1000000) )
+		}
+		do s.WriteLine()
+	}
+	do s.Rewind()
+	
+	write "POSTing " _ s.Size _ " characters",!
+	set request = ##class(Ens.StreamContainer).%New(s)
+	// Call the operation
+	set sc=op.Post(request,.response)
+	do response.Stream.Rewind()
+	while ( 'response.Stream.AtEnd ) {
+		write response.Stream.Read(),!
+	}
+]]></Implementation>
+</Method>
+
+<XData name="MessageMap">
+<Data><![CDATA[
+<MapItems>
+<MapItem MessageType="Ens.StreamContainer">
+<Method>Post</Method>
+</MapItem>
+</MapItems>
+]]></Data>
+</XData>
+
+<Method name="Post">
+<FormalSpec>request:Ens.StreamContainer,*response:Ens.StreamContainer</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set response=##class(Ens.StreamContainer).%New()
+	
+	set sc=..Adapter.PostURL(..Adapter.URL,.httpResponse,,request.Stream)
+	write "PostURL - no custom headers",!
+	while ( 'httpResponse.Data.AtEnd ) {
+		write httpResponse.Data.Read(),!
+	}
+	kill httpResponse
+	/*
+	If you want to inject some custom headers, then you need to call another api
+	which allows you to pass in a pre-populated %Net.HttpRequest object
+	*/
+	set httpRequest=##class(%Net.HttpRequest).%New()
+	do httpRequest.SetHeader("X-Custom-Header","SomeCustomHeaderValue $ZTS="_$ZTS)
+	set sc=..Adapter.SendFormData(.httpResponse,"POST",httpRequest,,request.Stream)
+	set response=##class(Ens.StreamContainer).%New(httpResponse.Data)
+	// TODO - deal with httpResponse.StatusCode '= 200, etc
+	//zw httpResponse
+	
+	quit $$$OK
+]]></Implementation>
+</Method>
+</Class>
+</Export>
