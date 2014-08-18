@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25" zv="Cache for UNIX (Apple Mac OS X for x86-64) 2014.1 (Build 608U)" ts="2014-08-18 10:38:59">
+<Project name="EnsExportProduction_2014-08-18 10-38-46_175-4" LastModified="2014-08-18 10:38:59.718584">
+  <ProjectDescription>Studio Project generated from Ensemble Production 'HMXDEMO.SampleLookupRoutingProduction' at 2014-08-18 14:38:46.175 UTC</ProjectDescription>
+  <Items>
+    <ProjectItem name="HMXDEMO.FacilityRoutingProcess" type="CLS"></ProjectItem>
+    <ProjectItem name="HMXDEMO.SampleLookupRoutingProduction" type="CLS"></ProjectItem>
+    <ProjectItem name="FacilityRouting.LUT" type="LUT"></ProjectItem>
+    <ProjectItem name="EnsExportNotes.EnsExportProduction_2014-08-18 10-38-46_175-4.PTD" type="PTD"></ProjectItem>
+  </Items>
+</Project>
+
+
+<Class name="HMXDEMO.FacilityRoutingProcess">
+<Description>
+</Description>
+<Super>Ens.BusinessProcessBPL</Super>
+<TimeChanged>63417,38103.312576</TimeChanged>
+<TimeCreated>63417,37216.014207</TimeCreated>
+
+<XData name="BPL">
+<Description>
+BPL Definition</Description>
+<XMLNamespace>http://www.intersystems.com/bpl</XMLNamespace>
+<Data><![CDATA[
+<process language='objectscript' request='EnsLib.EDI.XML.Document' response='Ens.Response' height='2000' width='2000' >
+<context>
+<property name='FacilityID' type='%String' instantiate='0' >
+<parameters>
+<parameter name='MAXLEN'  value='50' />
+</parameters>
+</property>
+<property name='FacilityName' type='%String' instantiate='0' >
+<parameters>
+<parameter name='MAXLEN'  value='100' />
+</parameters>
+</property>
+</context>
+<sequence xend='200' yend='750' >
+<assign name="Get FacilityID" property="context.FacilityID" value="request.GetValueAt(&quot;header.visionfacility&quot;)" action="set" xpos='200' ypos='250' />
+<trace name='FacilityID' value='"context.FacilityID="_context.FacilityID' xpos='200' ypos='350' />
+<assign name="Lookup FacilityName" property="context.FacilityName" value="##class(Ens.Util.FunctionSet).Lookup(&quot;FacilityRouting&quot;,context.FacilityID,&quot;Default&quot;)" action="set" xpos='200' ypos='450' />
+<trace name='FacilityName' value='"FacilityName="_context.FacilityName' xpos='200' ypos='550' />
+<call name='Send to operation' target='@context.FacilityName' async='1' xpos='200' ypos='650' >
+<request type='EnsLib.EDI.XML.Document' >
+<assign property="callrequest" value="request" action="set" />
+</request>
+<response type='Ens.Response' />
+</call>
+</sequence>
+</process>
+]]></Data>
+</XData>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="HMXDEMO.SampleLookupRoutingProduction">
+<Super>Ens.Production</Super>
+<TimeChanged>63417,37797.493242</TimeChanged>
+<TimeCreated>63417,35545.535172</TimeCreated>
+
+<XData name="ProductionDefinition">
+<Data><![CDATA[
+<Production Name="HMXDEMO.SampleLookupRoutingProduction" TestingEnabled="true" LogGeneralTraceEvents="true">
+  <Description></Description>
+  <ActorPoolSize>2</ActorPoolSize>
+  <Item Name="EnsLib.EDI.XML.Service.FileService" Category="" ClassName="EnsLib.EDI.XML.Service.FileService" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+    <Setting Target="Host" Name="DocSchemaCategory">CIM</Setting>
+    <Setting Target="Host" Name="TargetConfigNames">EnsLib.MsgRouter.VDocRoutingEngine,HMXDEMO.FacilityRoutingProcess</Setting>
+    <Setting Target="Adapter" Name="FilePath">/tmp/lookup_routing/input</Setting>
+  </Item>
+  <Item Name="FacilityOne" Category="" ClassName="EnsLib.EDI.XML.Operation.FileOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="FilePath">/tmp/lookup_routing/facility_one</Setting>
+  </Item>
+  <Item Name="FacilityTwo" Category="" ClassName="EnsLib.EDI.XML.Operation.FileOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="FilePath">/tmp/lookup_routing/facility_two</Setting>
+  </Item>
+  <Item Name="FacilityThree" Category="" ClassName="EnsLib.EDI.XML.Operation.FileOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="FilePath">/tmp/lookup_routing/facility_three</Setting>
+  </Item>
+  <Item Name="Default" Category="" ClassName="EnsLib.EDI.XML.Operation.FileOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="FilePath">/tmp/lookup_routing/default</Setting>
+  </Item>
+  <Item Name="HMXDEMO.FacilityRoutingProcess" Category="" ClassName="HMXDEMO.FacilityRoutingProcess" PoolSize="0" Enabled="true" Foreground="false" Comment="" LogTraceEvents="true" Schedule="">
+  </Item>
+</Production>
+]]></Data>
+</XData>
+</Class>
+
+
+<Document name="EnsExportNotes.EnsExportProduction_2014-08-18 10-38-46_175-4.PTD"><ProjectTextDocument name="EnsExportNotes.EnsExportProduction_2014-08-18 10-38-46_175-4" description="Export Notes for export EnsExportProduction_2014-08-18 10-38-46_175-4">
+<![CDATA[<Deployment>
+<Creation>
+<Machine>JMIMICKMBA11.LOCAL</Machine>
+<Instance>PLUTO</Instance>
+<Namespace>HMXABQ</Namespace>
+<SourceProduction>HMXDEMO.SampleLookupRoutingProduction</SourceProduction>
+<Username>_SYSTEM</Username>
+<UTC>2014-08-18 14:38:59.716</UTC>
+</Creation>
+<Notes>
+</Notes>
+<Contents>
+<ExportProject>EnsExportProduction_2014-08-18 10-38-46_175-4</ExportProject>
+<Item num="1">FacilityRouting.LUT</Item>
+<Item num="2">HMXDEMO.FacilityRoutingProcess.CLS</Item>
+<Item num="3">HMXDEMO.SampleLookupRoutingProduction.CLS</Item>
+</Contents>
+<ProductionClassInExport>HMXDEMO.SampleLookupRoutingProduction</ProductionClassInExport>
+</Deployment>
+
+]]></ProjectTextDocument>
+</Document>
+
+<Document name="FacilityRouting.LUT">
+<lookupTable>
+<entry table="FacilityRouting" key="1">FacilityOne</entry>
+<entry table="FacilityRouting" key="2">FacilityTwo</entry>
+<entry table="FacilityRouting" key="3">FacilityThree</entry>
+</lookupTable>
+</Document></Export>
