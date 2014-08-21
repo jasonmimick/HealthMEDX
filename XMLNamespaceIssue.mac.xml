@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25" zv="Cache for UNIX (Apple Mac OS X for x86-64) 2014.1 (Build 608U)" ts="2014-08-21 09:18:42">
+<Routine name="XMLNamespaceIssue" type="MAC" languagemode="0" timestamp="63420,33480.671724"><![CDATA[
+NoNS()	public {
+	// Reads in an xml file and them re-writes it's contents
+	// without any namespaces into a string
+	set ncpdpFile="/Users/jmimick/work/HealthMEDX/CensusToQS1.txt"
+	set xml=##class(EnsLib.EDI.XML.Document).ImportFromFile( ncpdpFile )
+	set xml.DocType="SCRIPT_XML_10_6:Message"
+	set reader = ##class(%XML.Reader).%New()
+	set sc=reader.OpenString( xml.RawContent )
+	set writer = ##class(%XML.Writer).%New()
+	set writer.SuppressXmlns = 0	// You would think this should be 1??
+	set sc=writer.OutputToString()
+	set sc=writer.DocumentNode( reader.Document.GetDocumentElement() )
+	set xml = writer.GetXMLString( .sc )
+	zw xml
+	
+}
+]]></Routine>
+</Export>
